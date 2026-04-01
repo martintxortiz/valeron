@@ -70,7 +70,7 @@ def test_reconcile_state_prefers_broker_truth():
 
 def test_latest_closed_bar_time():
     now = datetime(2026, 1, 1, 10, 7, tzinfo=UTC)
-    assert latest_closed_bar_time(now) == pd.Timestamp("2026-01-01T09:45:00Z")
+    assert latest_closed_bar_time(now) == pd.Timestamp("2026-01-01T10:00:00Z")
 
 
 class FakeBroker:

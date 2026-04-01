@@ -95,7 +95,7 @@ def save_snapshot(path: Path, state: RuntimeState) -> None:
 def latest_closed_bar_time(now: datetime | None = None) -> pd.Timestamp:
     now = now or datetime.now(UTC)
     ts = pd.Timestamp(now).tz_convert("UTC") if pd.Timestamp(now).tzinfo else pd.Timestamp(now, tz="UTC")
-    return ts.floor("15min") - pd.Timedelta(minutes=15)
+    return ts.floor("15min")
 
 
 def reconcile_state(
