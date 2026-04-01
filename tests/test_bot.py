@@ -188,3 +188,38 @@ def test_run_once_sell_takes_precedence(monkeypatch, tmp_path):
     assert result.action == "submitted_order"
     assert fake.sell_calls
     assert not fake.buy_calls
+
+
+def test_run_once_same_bar_still_buys_if_flat(monkeypatch, tmp_path):
+    monkeypatch.setenv("key", "test")
+    monkeypatch.setenv("secret", "test")
+    monkeypatch.setenv("DRY_RUN", "true")
+    monkeypatch.setenv("STATE_PATH", str(tmp_path / "state.json"))
+
+    from app import bot as bot_module
+
+    state_path = tmp_path / "state.json"
+    state_path.write_text(
+        """{
+  "last_processed_bar": "2026-01-02T08:45:00+00:00",
+  "last_desired_position": "long",
+  "last_submitted_order_id": null,
+  "last_submitted_client_order_id": "btcusd-buy-202601020845",
+  "last_stop_level": 99.5,
+  "broker_has_position": false,
+  "broker_has_open_order": false
+}""",
+        encoding="utf-8",
+    )
+
+    config = bot_module.load_config()
+    fake = FakeBroker(
+        config,
+        make_bars(),
+        AccountSnapshot(equity=1000, cash=1000, buying_power=1000),
+        None,
+        [],
+    )
+    monkeypatch.setattr(bot_module, "AlpacaBroker", lambda _config: fake)
+    result = run_once(datetime(2026, 1, 2, 9, 1, tzinfo=UTC))
+    assert result.action == "dry_run_order"

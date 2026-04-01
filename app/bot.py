@@ -122,6 +122,13 @@ def _client_order_id(symbol: str, side: str, bar_timestamp: pd.Timestamp) -> str
     return f"{compact_symbol}-{side}-{bar_timestamp.strftime('%Y%m%d%H%M')}"
 
 
+def _desired_matches_broker(signal: SignalDecision, position: PositionSnapshot | None, qty_tolerance: float) -> bool:
+    has_position = position is not None and position.qty > qty_tolerance
+    if signal.desired_position == "long":
+        return has_position
+    return not has_position
+
+
 def compute_target_order(
     account: AccountSnapshot,
     position: PositionSnapshot | None,
@@ -212,7 +219,10 @@ def run_once(now: datetime | None = None) -> CycleResult:
         save_snapshot(config.state_path, runtime_state)
         return CycleResult(status="ok", action="no_signal", desired_position="flat", message="No bars available.")
 
-    if runtime_state.last_processed_bar == signal.bar_timestamp.isoformat():
+    if (
+        runtime_state.last_processed_bar == signal.bar_timestamp.isoformat()
+        and _desired_matches_broker(signal, position, config.position_qty_tolerance)
+    ):
         refreshed = RuntimeState(
             last_processed_bar=runtime_state.last_processed_bar,
             last_desired_position=signal.desired_position,
@@ -229,6 +239,15 @@ def run_once(now: datetime | None = None) -> CycleResult:
             action="no_new_bar",
             desired_position=signal.desired_position,
             message="No new closed bar since last processed cycle.",
+        )
+
+    if runtime_state.last_processed_bar == signal.bar_timestamp.isoformat():
+        log_event(
+            "cycle_same_bar_reconcile",
+            symbol=config.symbol,
+            desired_position=signal.desired_position,
+            has_position=position is not None and position.qty > config.position_qty_tolerance,
+            message="Same bar but broker state does not match desired state; continuing.",
         )
 
     intent = compute_target_order(account, position, signal)

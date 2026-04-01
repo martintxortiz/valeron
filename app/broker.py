@@ -49,7 +49,9 @@ class AlpacaBroker:
     def __init__(self, config: Config):
         self.config = config
         self.trading = TradingClient(config.api_key, config.api_secret, paper=config.paper)
-        self.data = CryptoHistoricalDataClient(config.api_key, config.api_secret)
+        # Historical crypto data is public on Alpaca, so avoid credentialed data
+        # requests here to reduce auth edge cases in long-running bots.
+        self.data = CryptoHistoricalDataClient()
 
     def get_account_snapshot(self) -> AccountSnapshot:
         account = self.trading.get_account()
