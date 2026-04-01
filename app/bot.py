@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
+from alpaca.common.exceptions import APIError
 
 from app.broker import AccountSnapshot, AlpacaBroker, OpenOrderSnapshot, PositionSnapshot
 from app.config import load_config
@@ -335,6 +336,12 @@ def main() -> None:
         try:
             result = run_once()
             log_event("cycle_result", action=result.action, message=result.message, desired_position=result.desired_position)
+        except APIError as exc:
+            message = str(exc)
+            details = {"error": message, "paper": config.paper}
+            if "unauthorized" in message.lower():
+                details["hint"] = "Alpaca rejected the trading credentials. Verify paper API keys in .env and regenerate them if needed."
+            log_event("cycle_error", **details)
         except Exception as exc:
             log_event("cycle_error", error=str(exc))
         time.sleep(config.poll_seconds)
