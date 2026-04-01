@@ -21,6 +21,10 @@ class AccountSnapshot:
     equity: float
     cash: float
     buying_power: float
+    account_id: str = ""
+    account_number: str = ""
+    status: str = ""
+    crypto_status: str = ""
 
 
 @dataclass(frozen=True)
@@ -52,7 +56,17 @@ class AlpacaBroker:
         cash = float(getattr(account, "cash", 0) or 0)
         buying_power = float(getattr(account, "non_marginable_buying_power", 0) or getattr(account, "buying_power", 0) or 0)
         equity = float(getattr(account, "equity", 0) or 0)
-        return AccountSnapshot(equity=equity, cash=cash, buying_power=buying_power)
+        status = getattr(account, "status", "")
+        crypto_status = getattr(account, "crypto_status", "")
+        return AccountSnapshot(
+            account_id=str(getattr(account, "id", "") or ""),
+            account_number=str(getattr(account, "account_number", "") or ""),
+            status=str(getattr(status, "value", status)),
+            crypto_status=str(getattr(crypto_status, "value", crypto_status)),
+            equity=equity,
+            cash=cash,
+            buying_power=buying_power,
+        )
 
     def get_position(self, symbol: str) -> PositionSnapshot | None:
         try:

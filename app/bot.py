@@ -57,6 +57,29 @@ def log_event(event: str, **fields) -> None:
     logger.info(json.dumps(payload, default=str))
 
 
+def _account_summary(account: AccountSnapshot) -> dict[str, object]:
+    return {
+        "account_id": account.account_id,
+        "account_number": account.account_number,
+        "account_status": account.status,
+        "crypto_status": account.crypto_status,
+        "equity": round(account.equity, 2),
+        "cash": round(account.cash, 2),
+        "buying_power": round(account.buying_power, 2),
+    }
+
+
+def _position_summary(position: PositionSnapshot | None) -> dict[str, object]:
+    if position is None:
+        return {"has_position": False, "position_qty": 0.0, "position_market_value": 0.0}
+    return {
+        "has_position": True,
+        "position_qty": round(position.qty, 10),
+        "position_market_value": round(position.market_value, 2),
+        "position_avg_entry_price": round(position.avg_entry_price, 2),
+    }
+
+
 def load_snapshot(path: Path) -> RuntimeState:
     if not path.exists():
         return RuntimeState()
@@ -161,6 +184,14 @@ def run_once(now: datetime | None = None) -> CycleResult:
     position = broker.get_position(config.symbol)
     orders = broker.list_open_orders(config.symbol)
     runtime_state = reconcile_state(account, position, orders, snapshot)
+
+    log_event(
+        "broker_state",
+        symbol=config.symbol,
+        open_orders=len(orders),
+        **_account_summary(account),
+        **_position_summary(position),
+    )
 
     if runtime_state.broker_has_open_order:
         save_snapshot(config.state_path, runtime_state)
