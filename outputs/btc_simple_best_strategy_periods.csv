@@ -1,0 +1,6 @@
+period,start,end,strategy_total_return_pct,strategy_cagr_pct,strategy_sharpe,strategy_max_drawdown_pct,strategy_exposure_pct,strategy_avg_leverage,buyhold_total_return_pct,buyhold_cagr_pct,buyhold_sharpe,buyhold_max_drawdown_pct,buyhold_exposure_pct,buyhold_avg_leverage
+full_history,2014-09-17,2026-04-01,113679.66,84.03,1.36,-63.09,60.08,1.4,14881.46,54.37,0.99,-83.4,100.0,1.0
+2014_2017,2014-09-17,2017-12-31,4398.73,218.23,2.03,-41.13,78.17,1.37,2995.42,184.03,1.8,-61.06,100.0,1.0
+2018_2020,2018-01-01,2020-12-31,493.73,81.15,1.37,-63.09,46.94,1.38,112.35,28.56,0.72,-81.53,100.0,1.0
+2021_2022,2021-01-01,2022-12-31,72.95,31.59,0.79,-39.27,34.68,1.31,-43.67,-24.99,-0.03,-76.63,100.0,1.0
+2023_now,2023-01-01,2026-04-01,147.31,32.16,0.82,-39.7,69.53,1.48,312.12,54.67,1.15,-49.74,100.0,1.0
