@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 from alpaca.common.exceptions import APIError
+from alpaca.common.enums import Sort
 from alpaca.data.historical.crypto import CryptoHistoricalDataClient
 from alpaca.data.requests import CryptoBarsRequest
 from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
@@ -93,6 +94,7 @@ class AlpacaBroker:
             start=start,
             end=now,
             limit=limit,
+            sort=Sort.DESC,
         )
         bars = self.data.get_crypto_bars(request).df
         if isinstance(bars.index, pd.MultiIndex):
@@ -121,4 +123,3 @@ class AlpacaBroker:
             client_order_id=client_order_id,
         )
         return self.trading.submit_order(order_data=request)
-

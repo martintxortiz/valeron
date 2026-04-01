@@ -108,7 +108,7 @@ class FakeBroker:
 
 
 def make_bars():
-    closes = [100] * 80 + [101, 102, 103, 104, 105, 106, 107, 108, 110]
+    closes = [100] * 120 + [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 112, 114]
     index = pd.date_range("2026-01-01", periods=len(closes), freq="15min", tz="UTC")
     return pd.DataFrame(
         {
@@ -139,7 +139,7 @@ def test_run_once_blocks_when_open_order_exists(monkeypatch, tmp_path):
         [OpenOrderSnapshot(order_id="1", client_order_id="cid", side="buy", status="new", qty=None, notional=100)],
     )
     monkeypatch.setattr(bot_module, "AlpacaBroker", lambda _config: fake)
-    result = run_once(datetime(2026, 1, 2, 0, 1, tzinfo=UTC))
+    result = run_once(datetime(2026, 1, 2, 9, 1, tzinfo=UTC))
     assert result.action == "blocked_open_order"
 
 
@@ -160,7 +160,7 @@ def test_run_once_dry_run_buy(monkeypatch, tmp_path):
         [],
     )
     monkeypatch.setattr(bot_module, "AlpacaBroker", lambda _config: fake)
-    result = run_once(datetime(2026, 1, 2, 0, 1, tzinfo=UTC))
+    result = run_once(datetime(2026, 1, 2, 9, 1, tzinfo=UTC))
     assert result.action == "dry_run_order"
     assert result.order_client_id is not None
 
@@ -188,4 +188,3 @@ def test_run_once_sell_takes_precedence(monkeypatch, tmp_path):
     assert result.action == "submitted_order"
     assert fake.sell_calls
     assert not fake.buy_calls
-

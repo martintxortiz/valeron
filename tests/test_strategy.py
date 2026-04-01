@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from app.strategy import StrategyParams, compute_signal
+from app.strategy import StrategyParams, compute_position_frame, compute_signal
 
 
 def make_bars(closes: list[float]) -> pd.DataFrame:
@@ -43,3 +43,11 @@ def test_signal_exits_on_breakout_failure():
     assert signal.desired_position == "flat"
     assert signal.action == "exit_long"
 
+
+def test_position_frame_matches_incremental_signal():
+    bars = make_bars([100] * 20 + [101, 102, 103, 104, 110, 108, 107, 90])
+    params = StrategyParams(fast_ema=4, slow_ema=8, entry_breakout=5, exit_breakout=5)
+    frame = compute_position_frame(bars, params)
+    latest_signal = compute_signal(bars, params)
+    assert frame["desired_position"].iloc[-1] == latest_signal.desired_position
+    assert frame["action"].iloc[-1] == latest_signal.action

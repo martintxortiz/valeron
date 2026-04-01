@@ -8,8 +8,8 @@ import pandas as pd
 @dataclass(frozen=True)
 class StrategyParams:
     fast_ema: int = 16
-    slow_ema: int = 64
-    entry_breakout: int = 20
+    slow_ema: int = 96
+    entry_breakout: int = 30
     exit_breakout: int = 20
 
 

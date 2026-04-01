@@ -1,0 +1,10 @@
+services:
+  alpaca-btc-bot:
+    build: .
+    container_name: alpaca-btc-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./state:/app/state
+    command: ["python", "-m", "app.bot"]
